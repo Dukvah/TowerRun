@@ -1,0 +1,11 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class TutorialPanel : MonoBehaviour
+{
+    public void StartGameBtn()
+    {
+        GameManager.Instance.gameStart.Invoke();
+    }
+}
