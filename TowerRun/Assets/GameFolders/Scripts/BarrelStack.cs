@@ -6,10 +6,11 @@ using UnityEngine;
 public class BarrelStack : MonoBehaviour
 {
     [SerializeField] private List<Barrel> barrels = new List<Barrel>();
-
     [SerializeField] private Transform barrelTarget;
 
-    private void Start()
+    [SerializeField] private float barrelTime;
+
+    public void SendBarrels()
     {
         StartCoroutine(RollBarrel());
     }
@@ -19,7 +20,7 @@ public class BarrelStack : MonoBehaviour
         foreach (var barrel in barrels)
         {
             barrel.RollToTarget(barrelTarget.position);
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(barrelTime);
         }
     }
 }

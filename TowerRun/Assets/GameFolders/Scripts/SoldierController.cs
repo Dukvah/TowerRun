@@ -9,10 +9,10 @@ public class SoldierController : MonoBehaviour
     private Animator _animator;
     
     private Vector3 _target;
-    private bool _grounded = true;
+    public bool Grounded { get; private set; } = true;
 
     public bool IsAlive { get; set; }
-    public bool IsLeader { get; set; } = false;
+    public bool IsLeader { get; set; }
     
     private void Awake()
     {
@@ -31,7 +31,7 @@ public class SoldierController : MonoBehaviour
 
     public void JumpSoldier()
     {
-        _grounded = false;
+        Grounded = false;
         if (_agent.enabled)
         {
             _agent.SetDestination(transform.position);
@@ -51,7 +51,7 @@ public class SoldierController : MonoBehaviour
     {
         if (collision.collider != null && collision.collider.CompareTag("Ground"))
         {
-            if (!_grounded)
+            if (!Grounded)
             {
                 if (_agent.enabled)
                 {
@@ -62,7 +62,7 @@ public class SoldierController : MonoBehaviour
                 }
                 _rb.isKinematic = true;
                 _rb.useGravity = false;
-                _grounded = true;
+                Grounded = true;
             }
         }
     }

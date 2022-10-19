@@ -8,34 +8,56 @@ public class ArmyController : MonoBehaviour
     [SerializeField] private List<SoldierController> soldiers = new List<SoldierController>();
 
     [SerializeField] private Transform targetBoss;
+    [SerializeField] private BarrelStack barrelStack;
 
     private CameraFollower _cameraFollower;
+    private SoldierController _leader;
 
     private void Awake()
     {
         _cameraFollower = Camera.main.GetComponent<CameraFollower>();
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        StartCoroutine(StartAttack());
+        GameManager.Instance.goArmy.AddListener(StartAttack);
     }
-    private void Update()
+
+    private void CanJump()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && _leader.Grounded)
         {
             StartCoroutine(JumpArmy());
         }
     }
+    
+    private void StartAttack()
+    {
+        StartCoroutine(StartAttackAsync());
+        barrelStack.SendBarrels();
+        
+    }
+    private IEnumerator StartAttackAsync()
+    {
+        foreach (var soldier in soldiers)
+        {
+            soldier.StartAttack(targetBoss.position);
+            yield return new WaitForSeconds(0.25f);
+        }
 
+        _cameraFollower.CameraSetup(SetLeader());
+        InvokeRepeating(nameof(CanJump),5f,0.01f);
+    }
     private Transform SetLeader()
     {
         Transform temp = soldiers[0].transform;
-        
+
         foreach (var soldier in soldiers)
         {
             if (soldier.IsAlive)
             {
+                _leader = soldier;
+                
                 soldier.IsLeader = true;
                 temp = soldier.transform;
                 return temp;
@@ -43,16 +65,6 @@ public class ArmyController : MonoBehaviour
         }
 
         return temp;
-    }
-    private IEnumerator StartAttack()
-    {
-        foreach (var soldier in soldiers)
-        {
-            soldier.StartAttack(targetBoss.position);
-            yield return new WaitForSeconds(0.5f);
-        }
-        
-        _cameraFollower.CameraSetup(SetLeader());
     }
     
     private IEnumerator JumpArmy()

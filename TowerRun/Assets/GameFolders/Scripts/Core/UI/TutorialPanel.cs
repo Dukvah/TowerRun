@@ -1,10 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TutorialPanel : MonoBehaviour
 {
-    public void StartGameBtn()
+    private Button _start;
+
+    private void Awake()
+    {
+        _start = GetComponentInChildren<Button>();
+    }
+
+    private void OnEnable()
+    {
+        _start.onClick.AddListener(StartGameBtn);
+    }
+
+    private void StartGameBtn()
     {
         GameManager.Instance.gameStart.Invoke();
     }

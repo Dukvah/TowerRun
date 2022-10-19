@@ -5,29 +5,33 @@ using Cinemachine;
 
 public class CameraFollower : MonoBehaviour
 {
-    private CinemachineVirtualCamera _virtualCamera;
+    [SerializeField] private CinemachineVirtualCamera _virtualCamera;
+    private CinemachineBrain _cmBrain;
 
-    private bool _isRun = false;
+    private Transform _target;
 
     private void Awake()
     {
-        _virtualCamera = GetComponent<CinemachineVirtualCamera>();
+        _cmBrain = GetComponent<CinemachineBrain>();
     }
 
     public void CameraSetTarget(Transform target)
     {
         _virtualCamera.m_Follow = target;
         _virtualCamera.m_LookAt = target;
-        _isRun = true;
+        _cmBrain.enabled = true;
     }
     public void CameraSetup(Transform target)
     {
         Vector3 temp = transform.position;
         temp.z += 20;
-        temp.y -= 15;
-        transform.DOMove(temp, 3f).OnComplete(() =>
+        temp.y -= 25;
+
+        _target = target;
+        
+        gameObject.transform.DOMove(temp, 5f).OnComplete(() =>
         {
-            CameraSetTarget(target);
+            CameraSetTarget(_target);
         });
     }
     

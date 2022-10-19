@@ -11,6 +11,9 @@ public class GameManager : Singleton<GameManager>
     [HideInInspector] public UnityEvent onMoneyChange = new();
     [HideInInspector] public UnityEvent endBattle = new();
     [HideInInspector] public UnityEvent chestOpen = new();
+    
+    // ARMY
+    [HideInInspector] public UnityEvent goArmy = new();
 
     public bool IsPlaying { get; set; } = false;
     

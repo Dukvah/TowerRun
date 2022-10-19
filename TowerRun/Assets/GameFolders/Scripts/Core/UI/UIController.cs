@@ -6,14 +6,14 @@ using DG.Tweening;
 
 public class UIController : MonoBehaviour
 {
-    [SerializeField] private GameObject winPanel, losePanel, inGamePanel, tutorialPanel, upgradePanel, battlePanel;
+    [SerializeField] private GameObject winPanel, losePanel, inGamePanel, tutorialPanel, battlePanel;
     [SerializeField] private List<string> moneyMulti = new();
     [SerializeField] private TextMeshProUGUI moneyText;
     [SerializeField] private GameObject money;
     
     private LevelManager _levelManager;
     private Button _btnNext, _btnRestart;
-    
+    private CameraFollower _cameraFollower;
     private void Awake()
     {
         ScriptAssign();
@@ -53,6 +53,7 @@ public class UIController : MonoBehaviour
     private void ScriptAssign()
     {
         _levelManager = FindObjectOfType<LevelManager>();
+        _cameraFollower = Camera.main.GetComponent<CameraFollower>();
     }
 
     private void ButtonAssign()
@@ -81,14 +82,12 @@ public class UIController : MonoBehaviour
         losePanel.SetActive(false);
         battlePanel.SetActive(false);
         inGamePanel.SetActive(true);
-        upgradePanel.SetActive(true);
         ShowTutorial();
     }
     private void HasGameStart()
     {
         tutorialPanel.SetActive(false);
-        upgradePanel.SetActive(false);
-        GameManager.Instance.IsPlaying = true;
+        GameManager.Instance.goArmy.Invoke();
     }
 
     private void EndBattle()
@@ -106,7 +105,7 @@ public class UIController : MonoBehaviour
         if (money.activeSelf)
         {
             money.transform.DORewind();
-            money.transform.DOPunchScale(Vector3.one, 0.5f, 2, 1);
+            money.transform.DOPunchScale(Vector3.one, 0.5f);
         }
 
         int moneyDigit = GameManager.Instance.PlayerMoney.ToString().Length;
