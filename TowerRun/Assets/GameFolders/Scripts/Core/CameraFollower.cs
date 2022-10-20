@@ -9,10 +9,12 @@ public class CameraFollower : MonoBehaviour
     private CinemachineBrain _cmBrain;
 
     private Transform _target;
-
+    private Animator _animator;
+    
     private void Awake()
     {
         _cmBrain = GetComponent<CinemachineBrain>();
+        _animator = GetComponent<Animator>();
     }
 
     public void CameraSetTarget(Transform target)
@@ -24,15 +26,21 @@ public class CameraFollower : MonoBehaviour
     public void CameraSetup(Transform target)
     {
         Vector3 temp = transform.position;
-        temp.z += 20;
-        temp.y -= 25;
+        temp.z += 17;
+        temp.y -= 20;
 
         _target = target;
         
-        gameObject.transform.DOMove(temp, 5f).OnComplete(() =>
-        {
-            CameraSetTarget(_target);
-        });
+        _animator.SetBool("startGame",true);
+        // gameObject.transform.DOMove(temp, 5f).OnComplete(() =>
+        // {
+        //     CameraSetTarget(_target);
+        // });
+    }
+
+    public void LookTarget()
+    {
+        CameraSetTarget(_target);
     }
     
 }

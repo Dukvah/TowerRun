@@ -5,11 +5,14 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ground
+  - Barrel
+  - Soldier
+  - EndGameArea
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Soldier
   - Water
   - UI
   - 

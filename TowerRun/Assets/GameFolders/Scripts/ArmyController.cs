@@ -33,33 +33,51 @@ public class ArmyController : MonoBehaviour
     
     private void StartAttack()
     {
-        StartCoroutine(StartAttackAsync());
+        StartCoroutine(StartAttackAsync(SetLeader(),true));
         barrelStack.SendBarrels();
-        
     }
-    private IEnumerator StartAttackAsync()
+    public void UpdateAttack()
     {
+        StartCoroutine(StartAttackAsync(SetLeader()));
+    }
+
+    private IEnumerator StartAttackAsync(Transform leader, bool firstTime = false)
+    {
+        if (leader == null)
+        {
+            GameManager.Instance.levelFailed.Invoke();
+            yield break;
+        }
+        
+        _cameraFollower.CameraSetup(leader);
+        
         foreach (var soldier in soldiers)
         {
-            soldier.StartAttack(targetBoss.position);
-            yield return new WaitForSeconds(0.25f);
+            if (!soldier.IsLeader && soldier.IsAlive)
+            {
+                soldier.SetTarget(leader, true);
+                yield return new WaitForSeconds(0.1f);
+            }
         }
-
-        _cameraFollower.CameraSetup(SetLeader());
-        InvokeRepeating(nameof(CanJump),5f,0.01f);
+        
+        if (firstTime)
+            InvokeRepeating(nameof(CanJump),5f,0.01f);
     }
+    
     private Transform SetLeader()
     {
-        Transform temp = soldiers[0].transform;
+        Transform temp = null;
 
         foreach (var soldier in soldiers)
         {
             if (soldier.IsAlive)
             {
                 _leader = soldier;
-                
                 soldier.IsLeader = true;
+                
                 temp = soldier.transform;
+                soldier.SetTarget(targetBoss);
+
                 return temp;
             }
         }
@@ -71,8 +89,11 @@ public class ArmyController : MonoBehaviour
     {
         foreach (var soldier in soldiers)
         {
-            soldier.JumpSoldier();
-            yield return new WaitForSeconds(0.2f);
+            if (soldier.IsAlive)
+            {
+                soldier.JumpSoldier();
+                yield return new WaitForSeconds(0.05f);
+            }
         }
     }
 }
