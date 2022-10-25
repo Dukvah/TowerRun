@@ -8,6 +8,7 @@ TagManager:
   - Barrel
   - Soldier
   - EndGameArea
+  - BarrelEndArea
   layers:
   - Default
   - TransparentFX

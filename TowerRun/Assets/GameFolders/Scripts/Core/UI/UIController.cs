@@ -62,7 +62,7 @@ public class UIController : MonoBehaviour
         _btnRestart = losePanel.GetComponentInChildren<Button>();
 
         _btnNext.onClick.AddListener(() => _levelManager.LoadLevel(1));
-        _btnRestart.onClick.AddListener(() => _levelManager.LoadLevel(0,false));
+        _btnRestart.onClick.AddListener(() => _levelManager.LoadLevel(0));
     }
     
     private void ShowPanel(GameObject panel, bool canvasMode = false)

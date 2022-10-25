@@ -14,6 +14,8 @@ public class GameManager : Singleton<GameManager>
     
     // ARMY
     [HideInInspector] public UnityEvent goArmy = new();
+    [HideInInspector] public UnityEvent goBattle = new();
+    
 
     public bool IsPlaying { get; set; } = false;
     

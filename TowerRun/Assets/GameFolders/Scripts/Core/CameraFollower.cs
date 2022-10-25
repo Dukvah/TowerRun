@@ -6,10 +6,17 @@ using Cinemachine;
 public class CameraFollower : MonoBehaviour
 {
     [SerializeField] private CinemachineVirtualCamera _virtualCamera;
+    
+    [SerializeField] private Vector3 offset = new(0, -5, 5);
+    [SerializeField] [Range(0, 1)] private float lerpSpeed = 0.125f;
+    
     private CinemachineBrain _cmBrain;
 
     private Transform _target;
     private Animator _animator;
+
+    Vector3 _lerpPos;
+    bool _canMove = false;
     
     private void Awake()
     {
@@ -38,6 +45,23 @@ public class CameraFollower : MonoBehaviour
         // });
     }
 
+    private void LateUpdate() => CameraMove();
+
+
+    public void SetCameraMove(Transform target)
+    {
+        _target = target;
+        _cmBrain.enabled = false;
+        _canMove = true;
+    }
+    private void CameraMove()
+    {
+        if (!_canMove) return;
+        
+        _lerpPos = Vector3.Lerp(transform.localPosition, _target.localPosition - offset, lerpSpeed);
+        transform.localPosition = _lerpPos;
+
+    }
     public void LookTarget()
     {
         CameraSetTarget(_target);

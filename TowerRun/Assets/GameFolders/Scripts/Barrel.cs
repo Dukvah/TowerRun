@@ -16,5 +16,13 @@ public class Barrel : MonoBehaviour
         _agent.SetDestination(target);
         _animator.SetBool("isRoll",true);
     }
-    
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("BarrelEndArea"))
+        {
+            _animator.SetBool("isRoll",false);
+            _agent.isStopped = true;
+        }
+    }
 }

@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
-    [SerializeField] private List<Level> levels = new List<Level>();
+    [SerializeField] private List<Level> levels = new();
     [SerializeField] private int levelIndex = 0;
     [SerializeField] private GameObject loadPanel;
-    [SerializeField] private CameraFollower cameraFollower;
-    
+
     private GameObject _currentLevel;
     
     private void Awake()
