@@ -16,6 +16,9 @@ public class GameManager : Singleton<GameManager>
     [HideInInspector] public UnityEvent goArmy = new();
     [HideInInspector] public UnityEvent goBattle = new();
     
+    // UPGRADE
+    [HideInInspector] public UnityEvent addSoldier = new();
+    
 
     public bool IsPlaying { get; set; } = false;
     
@@ -39,7 +42,7 @@ public class GameManager : Singleton<GameManager>
     }
     private void LoadData()
     {
-        PlayerMoney = PlayerPrefs.GetFloat("PlayerMoney", 0);
+        PlayerMoney = PlayerPrefs.GetFloat("PlayerMoney", 1000000);
     }
 
     private void SaveData()

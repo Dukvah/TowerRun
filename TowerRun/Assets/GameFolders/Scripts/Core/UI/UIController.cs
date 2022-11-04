@@ -6,14 +6,14 @@ using DG.Tweening;
 
 public class UIController : MonoBehaviour
 {
-    [SerializeField] private GameObject winPanel, losePanel, inGamePanel, tutorialPanel, battlePanel;
+    [SerializeField] private GameObject winPanel, losePanel, inGamePanel, tutorialPanel, battlePanel, upgradePanel;
     [SerializeField] private List<string> moneyMulti = new();
     [SerializeField] private TextMeshProUGUI moneyText;
     [SerializeField] private GameObject money;
     
     private LevelManager _levelManager;
     private Button _btnNext, _btnRestart;
-    private CameraFollower _cameraFollower;
+    
     private void Awake()
     {
         ScriptAssign();
@@ -53,7 +53,6 @@ public class UIController : MonoBehaviour
     private void ScriptAssign()
     {
         _levelManager = FindObjectOfType<LevelManager>();
-        _cameraFollower = Camera.main.GetComponent<CameraFollower>();
     }
 
     private void ButtonAssign()
@@ -67,6 +66,7 @@ public class UIController : MonoBehaviour
     
     private void ShowPanel(GameObject panel, bool canvasMode = false)
     {
+        CloseAllPanels();
         panel.SetActive(true);
         
         GameObject panelChild = panel.transform.GetChild(0).gameObject;
@@ -82,11 +82,22 @@ public class UIController : MonoBehaviour
         losePanel.SetActive(false);
         battlePanel.SetActive(false);
         inGamePanel.SetActive(true);
+        upgradePanel.SetActive(true);
         ShowTutorial();
+    }
+
+    private void CloseAllPanels()
+    {
+        winPanel.SetActive(false);
+        losePanel.SetActive(false);
+        battlePanel.SetActive(false);
+        inGamePanel.SetActive(false);
+        tutorialPanel.SetActive(false);
     }
     private void HasGameStart()
     {
         tutorialPanel.SetActive(false);
+        upgradePanel.SetActive(false);
         GameManager.Instance.goArmy.Invoke();
     }
 

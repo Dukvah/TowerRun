@@ -9,13 +9,13 @@ public class SoldierController : MonoBehaviour
     private NavMeshAgent _agent;
     private Animator _animator;
     private ArmyController _armyController;
-    
     private Transform _target;
+    
     public bool Grounded { get; private set; } = true;
-
-    public bool IsAlive { get; private set; } = true;
+    public bool IsAlive { get; set; }
     public bool IsLeader { get; set; }
     
+
     private void Awake()
     {
         _col = GetComponentInChildren<Collider>();
@@ -23,17 +23,21 @@ public class SoldierController : MonoBehaviour
         _rb = GetComponent<Rigidbody>();
         _agent = GetComponent<NavMeshAgent>();
         _animator = GetComponent<Animator>();
+
+        _agent.speed = PlayerPrefs.GetFloat("Speed", 2);
     }
 
     public void SetTarget(Transform target, bool repeat = false)
     {
         _target = target;
+        _agent.speed = PlayerPrefs.GetFloat("Speed", 2);
         _agent.SetDestination(_target.position);
         _animator.SetBool("isRun",true);
-        
+
         if (repeat)
         {
-             InvokeRepeating(nameof(FollowLeader),0,0.02f);  
+            _agent.speed *= 1.2f;
+             InvokeRepeating(nameof(FollowLeader),0,0.02f);
         }
     }
     private void FollowLeader()
@@ -54,7 +58,7 @@ public class SoldierController : MonoBehaviour
         CancelInvoke(nameof(FollowLeader));
         _agent.SetDestination(target);
     }
-    public void JumpSoldier()
+    public void JumpSoldier(float jumpValue)
     {
         if (_agent.enabled)
         {
@@ -68,7 +72,7 @@ public class SoldierController : MonoBehaviour
         // make the jump
         _animator.SetBool("isJump",true);
         _rb.isKinematic = false;
-        _rb.AddRelativeForce(Vector3.up * 5, ForceMode.Impulse);
+        _rb.AddRelativeForce(Vector3.up * jumpValue, ForceMode.Impulse);
         _rb.useGravity = true;
         
         Grounded = false;

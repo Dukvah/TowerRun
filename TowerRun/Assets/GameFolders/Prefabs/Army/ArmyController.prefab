@@ -44,5 +44,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0e8b8c457079ca438d85e08980d0b64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soldiers: []
+  soldiers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   targetBoss: {fileID: 0}
+  barrelStack: {fileID: 0}
+  bossController: {fileID: 0}
+  requiredMinion: 5
+  upgradeEffect: {fileID: 5112403345868107898, guid: 6f34ef0d986e9db4199cf75805f79753,
+    type: 3}

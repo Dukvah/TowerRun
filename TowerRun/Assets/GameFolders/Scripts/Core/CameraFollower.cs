@@ -1,48 +1,37 @@
-using System;
 using UnityEngine;
 using DG.Tweening;
-using Cinemachine;
+
 
 public class CameraFollower : MonoBehaviour
 {
-    [SerializeField] private CinemachineVirtualCamera _virtualCamera;
-    
     [SerializeField] private Vector3 offset = new(0, -5, 5);
+    [SerializeField] private Space offsetPositionSpace = Space.Self;
     [SerializeField] [Range(0, 1)] private float lerpSpeed = 0.125f;
-    
-    private CinemachineBrain _cmBrain;
+    [SerializeField] private Transform upgradePos, readyPos;
 
     private Transform _target;
-    private Animator _animator;
 
-    Vector3 _lerpPos;
-    bool _canMove = false;
+    private Vector3 _startPos, _lerpPos, _lerpRot;
+    private bool _lookAt = true;
+    private bool _canMove = false;
     
     private void Awake()
     {
-        _cmBrain = GetComponent<CinemachineBrain>();
-        _animator = GetComponent<Animator>();
+        _startPos = gameObject.transform.position;
     }
 
     public void CameraSetTarget(Transform target)
     {
-        _virtualCamera.m_Follow = target;
-        _virtualCamera.m_LookAt = target;
-        _cmBrain.enabled = true;
+        _target = target;
     }
     public void CameraSetup(Transform target)
     {
-        Vector3 temp = transform.position;
-        temp.z += 17;
-        temp.y -= 20;
-
         _target = target;
-        
-        _animator.SetBool("startGame",true);
-        // gameObject.transform.DOMove(temp, 5f).OnComplete(() =>
-        // {
-        //     CameraSetTarget(_target);
-        // });
+        transform.DORotate(readyPos.rotation.eulerAngles,4f);
+        transform.DOMove(readyPos.position, 5f).OnComplete(() =>
+        {
+            _canMove = true;
+        });
     }
 
     private void LateUpdate() => CameraMove();
@@ -51,20 +40,47 @@ public class CameraFollower : MonoBehaviour
     public void SetCameraMove(Transform target)
     {
         _target = target;
-        _cmBrain.enabled = false;
         _canMove = true;
     }
     private void CameraMove()
     {
         if (!_canMove) return;
         
-        _lerpPos = Vector3.Lerp(transform.localPosition, _target.localPosition - offset, lerpSpeed);
-        transform.localPosition = _lerpPos;
+        if(offsetPositionSpace == Space.Self)
+        {
+            _lerpPos = Vector3.Lerp(_target.position, _target.TransformPoint(offset), lerpSpeed);
+            transform.position = _lerpPos;
+        }
+        else
+        {
+            transform.position = _target.position + offset;
+        }
+ 
+        // compute rotation
+        if(_lookAt)
+        {
+            transform.LookAt(_target);
+        }
+        else
+        {
+            transform.rotation = _target.rotation;
+        }
 
     }
-    public void LookTarget()
+    public void GoLosePose()
     {
-        CameraSetTarget(_target);
+        _canMove = false;
+        transform.DOMove(_startPos,3f);
     }
+
+    public void GoUpgradeLook()
+    {
+        transform.DOMove(upgradePos.position, 1f);
+    }
+    public void GoStartPos()
+    {
+        transform.DOMove(_startPos, 1f);
+    }
+    
     
 }
