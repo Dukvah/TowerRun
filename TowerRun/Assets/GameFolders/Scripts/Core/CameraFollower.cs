@@ -81,6 +81,12 @@ public class CameraFollower : MonoBehaviour
     {
         transform.DOMove(_startPos, 1f);
     }
-    
+
+    public void GoBossFightPos(Transform fightPos)
+    {
+        _canMove = false;
+        transform.DORotate(fightPos.localRotation.eulerAngles,1f);
+        transform.DOMove(fightPos.localPosition, 1f);
+    }
     
 }

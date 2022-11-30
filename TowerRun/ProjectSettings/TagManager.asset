@@ -9,6 +9,9 @@ TagManager:
   - Soldier
   - EndGameArea
   - BarrelEndArea
+  - BossFightArea
+  - Bullet
+  - FxTemporaire
   layers:
   - Default
   - TransparentFX
@@ -16,7 +19,7 @@ TagManager:
   - Soldier
   - Water
   - UI
-  - 
+  - GunTarget
   - 
   - 
   - 

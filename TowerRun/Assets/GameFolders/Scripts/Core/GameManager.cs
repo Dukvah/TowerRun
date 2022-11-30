@@ -9,12 +9,15 @@ public class GameManager : Singleton<GameManager>
     [HideInInspector] public UnityEvent levelSuccess = new();
     [HideInInspector] public UnityEvent levelFailed = new();
     [HideInInspector] public UnityEvent onMoneyChange = new();
-    [HideInInspector] public UnityEvent endBattle = new();
+    [HideInInspector] public UnityEvent onSoldierCountChange = new();
+    [HideInInspector] public UnityEvent onBossFight = new();
     [HideInInspector] public UnityEvent chestOpen = new();
-    
+
     // ARMY
     [HideInInspector] public UnityEvent goArmy = new();
     [HideInInspector] public UnityEvent goBattle = new();
+    [HideInInspector] public UnityEvent selectSoldier = new();
+    [HideInInspector] public UnityEvent changeSoldier = new();
     
     // UPGRADE
     [HideInInspector] public UnityEvent addSoldier = new();
@@ -30,6 +33,16 @@ public class GameManager : Singleton<GameManager>
         {
             _playerMoney = value;
             onMoneyChange.Invoke();
+        }
+    }
+    private float _soldierCount;
+    public float SoldierCount
+    {
+        get => _soldierCount;
+        set
+        {
+            _soldierCount = value;
+            onSoldierCountChange.Invoke();
         }
     }
     private void Start()

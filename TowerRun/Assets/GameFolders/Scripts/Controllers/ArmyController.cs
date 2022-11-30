@@ -1,16 +1,14 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
 
 public class ArmyController : MonoBehaviour
 {
-    [SerializeField] private List<SoldierController> soldiers = new List<SoldierController>();
+    [SerializeField] private List<SoldierController> soldiers = new();
 
     [SerializeField] private Transform targetBoss;
     [SerializeField] private BarrelStack barrelStack;
-    [SerializeField] private BossController bossController;
+    [SerializeField] private ArmyCameraTarget targetCamera;
     
     [Header("ArmyProperties")]
     [SerializeField] private int requiredMinion;
@@ -19,7 +17,7 @@ public class ArmyController : MonoBehaviour
     [SerializeField] private GameObject upgradeEffect;
     
     private CameraFollower _cameraFollower;
-    private SoldierController _leader;
+    public SoldierController Leader { get; private set; }
 
     private int _soldierCount;
     private float _jumpValue;
@@ -35,21 +33,23 @@ public class ArmyController : MonoBehaviour
         GameManager.Instance.goArmy.AddListener(StartAttack);
         GameManager.Instance.goBattle.AddListener(GoBattle);
         GameManager.Instance.addSoldier.AddListener(AddSoldier);
+        GameManager.Instance.changeSoldier.AddListener(ChangeSoldier);
     }
 
     private void SoldierInitialize()
     {
+        GameManager.Instance.SoldierCount = (int)PlayerPrefs.GetFloat("SoldierCount", 1);
         _soldierCount = (int)PlayerPrefs.GetFloat("SoldierCount", 1);
-
+        
         for (int i = 0; i < _soldierCount; i++)
         {
             soldiers[i].IsAlive = true;
-            soldiers[i].gameObject.SetActive(true);
+            soldiers[i].transform.parent.gameObject.SetActive(true);
         }
     }
     private void CanJump()
     {
-        if (Input.GetMouseButtonDown(0) && _leader.Grounded)
+        if (Input.GetMouseButtonDown(0) && Leader.Grounded)
         {
             StartCoroutine(JumpArmy());
         }
@@ -59,6 +59,7 @@ public class ArmyController : MonoBehaviour
     {
         StartAttackAsync(SetLeader(), true);
         barrelStack.SendBarrels();
+        targetCamera.SetStart(targetBoss.position);
     }
     public void UpdateAttack()
     {
@@ -69,7 +70,7 @@ public class ArmyController : MonoBehaviour
     {
         if (leader == null)
         {
-            NoMoreMinion();
+            NoMoreSoldier();
             return;
         }
 
@@ -85,10 +86,10 @@ public class ArmyController : MonoBehaviour
         {
             _jumpValue = PlayerPrefs.GetFloat("Jump", 5);
             InvokeRepeating(nameof(CanJump),5f,0.01f);
-            _cameraFollower.CameraSetup(leader);
+            _cameraFollower.CameraSetup(targetCamera.transform);
         }
         else
-            _cameraFollower.CameraSetTarget(leader);
+            _cameraFollower.CameraSetTarget(targetCamera.transform);
         
     }
     
@@ -100,7 +101,7 @@ public class ArmyController : MonoBehaviour
         {
             if (soldier.IsAlive)
             {
-                _leader = soldier;
+                Leader = soldier;
                 soldier.IsLeader = true;
                 
                 temp = soldier.transform;
@@ -120,83 +121,17 @@ public class ArmyController : MonoBehaviour
             if (soldier.IsAlive)
             {
                 soldier.JumpSoldier(_jumpValue);
-                yield return new WaitForSeconds(0.05f);
+                yield return new WaitForSeconds(0.01f);
             }
         }
     }
-
     private void GoBattle()
     {
+        targetCamera.Stop();
         barrelStack.StopBarrels();
-        
-        var howMany = 0;
-        
-        foreach (var soldier in soldiers)
-        {
-            if (soldier.IsAlive)
-            {
-                howMany++;
-            }
-        }
-        
-        var i = 0;
-        foreach (var soldier in soldiers)
-        {
-            
-            if (soldier.IsAlive)
-            {
-                var radians = 2 * Mathf.PI / howMany * i;
-                var horizontal = Mathf.Cos(radians);
-                var vertical = Mathf.Sin(radians);
-                
-                var targetDir = new Vector3(horizontal, 0, vertical);
-                
-                var targetPos = bossController.gameObject.transform.position + targetDir * 1.8f;
-                
-                soldier.GoEnd(targetPos);
-                i++;
-            }
-        }
         CancelInvoke(nameof(CanJump));
-        StartCoroutine(CheckWinLose());
     }
-
-    private IEnumerator CheckWinLose()
-    {
-        yield return new WaitForSeconds(2f);
-        _cameraFollower.SetCameraMove(bossController.transform);
-        int minionCount = 0;
-        foreach (var soldier in soldiers)
-        {
-            if (soldier.IsAlive)
-            {
-                minionCount++;
-            }
-        }
-        
-        bossController.SetAnim(minionCount >= requiredMinion);
-        foreach (var soldier in soldiers)
-        {
-            if (soldier.IsAlive)
-            {
-                soldier.SetAnim(minionCount >= requiredMinion);
-            }
-        }
-
-
-        yield return new WaitForSeconds(2f);
-        
-        if (minionCount < requiredMinion)
-        {
-            GameManager.Instance.levelFailed.Invoke();
-        }
-        else
-        {
-            GameManager.Instance.levelSuccess.Invoke();
-        }
-    }
-
-    private void NoMoreMinion()
+    private void NoMoreSoldier()
     {
         CancelInvoke(nameof(CanJump));
         _cameraFollower.GoLosePose();
@@ -206,14 +141,23 @@ public class ArmyController : MonoBehaviour
     private void AddSoldier()
     {
         _soldierCount = (int)PlayerPrefs.GetFloat("SoldierCount", 1);
+        GameManager.Instance.SoldierCount = _soldierCount;
         
         soldiers[_soldierCount - 1].IsAlive = true;
         
-        var tempSoldier = soldiers[_soldierCount - 1].gameObject;
+        var tempSoldier = soldiers[_soldierCount - 1].transform.parent.gameObject;
         tempSoldier.SetActive(true);
         
         
-        var effect = Instantiate(upgradeEffect, tempSoldier.transform.localPosition + Vector3.up, quaternion.identity);
+        var effect = Instantiate(upgradeEffect, tempSoldier.transform.localPosition, Quaternion.identity);
         Destroy(effect, 2f);
+    }
+
+    private void ChangeSoldier()
+    {
+        foreach (var soldier in soldiers)
+        {
+            soldier.SoldierIndex = PlayerPrefs.GetInt("SoldierIndex", 0);
+        }
     }
 }

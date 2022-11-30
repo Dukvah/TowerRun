@@ -5,14 +5,13 @@ using TMPro;
 
 public class UpgradeCard : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI value, priceText;
+    [SerializeField] private TextMeshProUGUI priceText;
     private Button _upgradeButton;
 
     [Header("Card Properties")]
     [SerializeField] private string _name;
     [SerializeField] private List<float> values = new();
     [SerializeField] private List<float> prices = new();
-    [SerializeField] private bool isAddSoldier;
     private int _cardLevel = 0;
     
     private void Awake()
@@ -33,17 +32,16 @@ public class UpgradeCard : MonoBehaviour
         _upgradeButton.onClick.AddListener(Buy);
     }
 
-    private void OnDisable()
-    {
-        if (GameManager.Instance)
-            GameManager.Instance.onMoneyChange.RemoveListener(ButtonInitialize);
-
-        _upgradeButton.onClick.RemoveListener(Buy);
-    }
+    // private void OnDisable()
+    // {
+    //     if (GameManager.Instance)
+    //         GameManager.Instance.onMoneyChange.RemoveListener(ButtonInitialize);
+    //
+    //     _upgradeButton.onClick.RemoveListener(Buy);
+    // }
 
     void ItemInitialize()
     {
-        value.text = values[_cardLevel].ToString();
         ButtonInitialize();
     }
 
@@ -61,7 +59,6 @@ public class UpgradeCard : MonoBehaviour
 
             _upgradeButton.interactable = GameManager.Instance.PlayerMoney >= prices[_cardLevel];
             priceText.color = _upgradeButton.interactable ? Color.white : Color.red;
-
         }
     }
 
@@ -71,9 +68,8 @@ public class UpgradeCard : MonoBehaviour
         _cardLevel++;
         ItemInitialize();
         SaveData();
-
-        if (isAddSoldier)
-            GameManager.Instance.addSoldier.Invoke();
+        
+        GameManager.Instance.addSoldier.Invoke();
     }
 
     private void LoadData()

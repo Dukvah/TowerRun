@@ -6,13 +6,14 @@ using DG.Tweening;
 
 public class UIController : MonoBehaviour
 {
-    [SerializeField] private GameObject winPanel, losePanel, inGamePanel, tutorialPanel, battlePanel, upgradePanel;
+    [SerializeField] private GameObject winPanel, losePanel, inGamePanel, tutorialPanel, battlePanel, upgradePanel, menuPanel;
     [SerializeField] private List<string> moneyMulti = new();
-    [SerializeField] private TextMeshProUGUI moneyText;
-    [SerializeField] private GameObject money;
+    [SerializeField] private TextMeshProUGUI moneyText, minionCountText;
+    [SerializeField] private GameObject moneyIcon, minionIcon;
+    [SerializeField] private Button exitUpgradePanel;
     
     private LevelManager _levelManager;
-    private Button _btnNext, _btnRestart;
+    private Button _btnNext, _btnRestart, _btnStore;
     
     private void Awake()
     {
@@ -23,6 +24,7 @@ public class UIController : MonoBehaviour
     private void Start()
     {
         GameManager.Instance.onMoneyChange.Invoke();
+        GameManager.Instance.onSoldierCountChange.Invoke();
         GameManager.Instance.gameReady.Invoke();
     }
     
@@ -33,7 +35,8 @@ public class UIController : MonoBehaviour
         GameManager.Instance.gameReady.AddListener(GameReady);
         GameManager.Instance.gameStart.AddListener(HasGameStart);
         GameManager.Instance.onMoneyChange.AddListener(SetMoneyText);
-        GameManager.Instance.endBattle.AddListener(EndBattle);
+        GameManager.Instance.onSoldierCountChange.AddListener(SetMinionText);
+        GameManager.Instance.onBossFight.AddListener(BossFight);
         GameManager.Instance.chestOpen.AddListener(ChestOpen);
     }
 
@@ -45,7 +48,7 @@ public class UIController : MonoBehaviour
             GameManager.Instance.levelSuccess.RemoveListener(() => ShowPanel(winPanel, true));
             GameManager.Instance.gameStart.RemoveListener(HasGameStart);
             GameManager.Instance.gameReady.RemoveListener(GameReady);
-            GameManager.Instance.endBattle.RemoveListener(EndBattle);
+            GameManager.Instance.onBossFight.RemoveListener(BossFight);
             GameManager.Instance.chestOpen.RemoveListener(ChestOpen);
         }
     }
@@ -57,11 +60,14 @@ public class UIController : MonoBehaviour
 
     private void ButtonAssign()
     {
+        _btnStore = menuPanel.GetComponentInChildren<Button>();
         _btnNext = winPanel.GetComponentInChildren<Button>();
         _btnRestart = losePanel.GetComponentInChildren<Button>();
-
+        
+        _btnStore.onClick.AddListener(() => upgradePanel.SetActive(true));
         _btnNext.onClick.AddListener(() => _levelManager.LoadLevel(1));
         _btnRestart.onClick.AddListener(() => _levelManager.LoadLevel(0));
+        exitUpgradePanel.onClick.AddListener(() => upgradePanel.SetActive(false));
     }
     
     private void ShowPanel(GameObject panel, bool canvasMode = false)
@@ -78,11 +84,12 @@ public class UIController : MonoBehaviour
     
     private void GameReady()
     {
+        menuPanel.SetActive(true);
+        inGamePanel.SetActive(true);
         winPanel.SetActive(false);
         losePanel.SetActive(false);
         battlePanel.SetActive(false);
-        inGamePanel.SetActive(true);
-        upgradePanel.SetActive(true);
+        upgradePanel.SetActive(false);
         ShowTutorial();
     }
 
@@ -93,15 +100,17 @@ public class UIController : MonoBehaviour
         battlePanel.SetActive(false);
         inGamePanel.SetActive(false);
         tutorialPanel.SetActive(false);
+        menuPanel.SetActive(false);
     }
     private void HasGameStart()
     {
         tutorialPanel.SetActive(false);
         upgradePanel.SetActive(false);
+        menuPanel.SetActive(false);
         GameManager.Instance.goArmy.Invoke();
     }
 
-    private void EndBattle()
+    private void BossFight()
     {
         inGamePanel.SetActive(false);
         battlePanel.SetActive(true);
@@ -113,10 +122,10 @@ public class UIController : MonoBehaviour
     }
     private void SetMoneyText()
     {
-        if (money.activeSelf)
+        if (moneyIcon.activeSelf)
         {
-            money.transform.DORewind();
-            money.transform.DOPunchScale(Vector3.one, 0.5f);
+            moneyIcon.transform.DORewind();
+            moneyIcon.transform.DOPunchScale(Vector3.one / 4, 0.5f);
         }
 
         int moneyDigit = GameManager.Instance.PlayerMoney.ToString().Length;
@@ -130,6 +139,18 @@ public class UIController : MonoBehaviour
             float temp = GameManager.Instance.PlayerMoney / Mathf.Pow(1000, value);
             moneyText.text = temp.ToString("F2") + " " + moneyMulti[value];
         }
+    }
+    private void SetMinionText()
+    {
+        if (GameManager.Instance.SoldierCount < 0) return;
+        
+        if (minionIcon.activeSelf)
+        {
+            minionIcon.transform.DORewind();
+            minionIcon.transform.DOPunchScale(Vector3.one / 4, 0.5f);
+        }
+        
+        minionCountText.text = GameManager.Instance.SoldierCount.ToString();
     }
     private void ShowTutorial()
     {
