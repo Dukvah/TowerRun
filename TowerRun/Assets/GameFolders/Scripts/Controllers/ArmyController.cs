@@ -60,6 +60,7 @@ public class ArmyController : MonoBehaviour
         StartAttackAsync(SetLeader(), true);
         barrelStack.SendBarrels();
         targetCamera.SetStart(targetBoss.position);
+        GameManager.Instance.inGameMusic.Invoke();
     }
     public void UpdateAttack()
     {
@@ -85,7 +86,7 @@ public class ArmyController : MonoBehaviour
         if (firstTime)
         {
             _jumpValue = PlayerPrefs.GetFloat("Jump", 5);
-            InvokeRepeating(nameof(CanJump),5f,0.01f);
+            InvokeRepeating(nameof(CanJump),5f,Time.deltaTime);
             _cameraFollower.CameraSetup(targetCamera.transform);
         }
         else
@@ -121,7 +122,7 @@ public class ArmyController : MonoBehaviour
             if (soldier.IsAlive)
             {
                 soldier.JumpSoldier(_jumpValue);
-                yield return new WaitForSeconds(0.01f);
+                yield return new WaitForSeconds(0.05f);
             }
         }
     }

@@ -1,10 +1,9 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyArmy : MonoBehaviour
 {
+    [SerializeField] private EndGameController endGameController;
     [SerializeField] private List<EnemySoldier> soldiers = new();
 
     private int _soldierCount;
@@ -18,7 +17,9 @@ public class EnemyArmy : MonoBehaviour
         _soldierCount--;
         if (_soldierCount <= 0)
         {
-            GameManager.Instance.levelSuccess.Invoke();
+            //GameManager.Instance.levelSuccess.Invoke();
+            endGameController.StopGameOver();
+            GameManager.Instance.chestOpen.Invoke();
         }
     }
 }

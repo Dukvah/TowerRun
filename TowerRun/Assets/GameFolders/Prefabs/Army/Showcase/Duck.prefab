@@ -531,13 +531,15 @@ GameObject:
   m_Component:
   - component: {fileID: 3633498594287167883}
   - component: {fileID: 4118285763063214926}
+  - component: {fileID: 1165375819}
+  - component: {fileID: 3230961593214387498}
   m_Layer: 0
   m_Name: Duck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3633498594287167883
 Transform:
   m_ObjectHideFlags: 0
@@ -545,10 +547,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4118285763063214897}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1999.9999, y: 1999.9998, z: 1999.9996}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 355300303334502470}
   - {fileID: 9096309676446861599}
@@ -575,6 +577,32 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &1165375819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4118285763063214897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d719e4f74c022c4d9856692e8d5e424, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!136 &3230961593214387498
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4118285763063214897}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.118718065
+  m_Height: 0.48501202
+  m_Direction: 1
+  m_Center: {x: 0.016567344, y: 0.23723504, z: 0.015605504}
 --- !u!1 &4243374197491863658
 GameObject:
   m_ObjectHideFlags: 0

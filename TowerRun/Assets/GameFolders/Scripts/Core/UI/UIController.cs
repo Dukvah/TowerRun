@@ -6,11 +6,11 @@ using DG.Tweening;
 
 public class UIController : MonoBehaviour
 {
-    [SerializeField] private GameObject winPanel, losePanel, inGamePanel, tutorialPanel, battlePanel, upgradePanel, menuPanel;
+    [SerializeField] private GameObject winPanel, losePanel, inGamePanel, tutorialPanel, battlePanel, upgradePanel, menuPanel,levelsPanel;
     [SerializeField] private List<string> moneyMulti = new();
     [SerializeField] private TextMeshProUGUI moneyText, minionCountText;
     [SerializeField] private GameObject moneyIcon, minionIcon;
-    [SerializeField] private Button exitUpgradePanel;
+    [SerializeField] private Button exitUpgradePanel, btnLevels;
     
     private LevelManager _levelManager;
     private Button _btnNext, _btnRestart, _btnStore;
@@ -64,10 +64,31 @@ public class UIController : MonoBehaviour
         _btnNext = winPanel.GetComponentInChildren<Button>();
         _btnRestart = losePanel.GetComponentInChildren<Button>();
         
-        _btnStore.onClick.AddListener(() => upgradePanel.SetActive(true));
-        _btnNext.onClick.AddListener(() => _levelManager.LoadLevel(1));
-        _btnRestart.onClick.AddListener(() => _levelManager.LoadLevel(0));
-        exitUpgradePanel.onClick.AddListener(() => upgradePanel.SetActive(false));
+        _btnStore.onClick.AddListener(() =>
+        {
+            upgradePanel.SetActive(true);
+            GameManager.Instance.buttonClick.Invoke();
+        });
+        _btnNext.onClick.AddListener(() =>
+        {
+            _levelManager.LoadLevel(_levelManager.LevelIndex + 1);
+            GameManager.Instance.buttonClick.Invoke();
+        });
+        _btnRestart.onClick.AddListener(() =>
+        {
+            _levelManager.LoadLevel(_levelManager.LevelIndex);
+            GameManager.Instance.buttonClick.Invoke();
+        });
+        exitUpgradePanel.onClick.AddListener(() =>
+        {
+            upgradePanel.SetActive(false);
+            GameManager.Instance.buttonClick.Invoke();
+        });
+        btnLevels.onClick.AddListener(() =>
+        {
+            OpenLevelsMenu();
+            GameManager.Instance.buttonClick.Invoke();
+        });
     }
     
     private void ShowPanel(GameObject panel, bool canvasMode = false)
@@ -137,7 +158,7 @@ public class UIController : MonoBehaviour
         else
         {
             float temp = GameManager.Instance.PlayerMoney / Mathf.Pow(1000, value);
-            moneyText.text = temp.ToString("F2") + " " + moneyMulti[value];
+            moneyText.text = temp.ToString("F2") + " " + moneyMulti[value-1];
         }
     }
     private void SetMinionText()
@@ -155,5 +176,11 @@ public class UIController : MonoBehaviour
     private void ShowTutorial()
     {
         tutorialPanel.transform.GetChild(0).gameObject.SetActive(true);
+    }
+
+    private void OpenLevelsMenu()
+    {
+        Time.timeScale = 0;
+        levelsPanel.SetActive(true);
     }
 }

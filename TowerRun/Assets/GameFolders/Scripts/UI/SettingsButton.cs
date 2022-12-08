@@ -42,18 +42,34 @@ public class SettingsButton : MonoBehaviour
             frame.transform.DOScale(Vector3.one, 0.5f);
             _isOpen = true;
         }
+        
+        GameManager.Instance.buttonClick.Invoke();
     }
 
     private void SetMusic()
     {
         PlayerPrefs.SetInt("Music", PlayerPrefs.GetInt("Music", 1) == 1 ? 0 : 1);
+
+        if ( PlayerPrefs.GetInt("Music", 1) == 1)
+        {
+            GameManager.Instance.openMusic.Invoke();
+        }
+        else
+        {
+            GameManager.Instance.stopMusic.Invoke();
+        }
+        
         CrossInitialize();
+        
+        GameManager.Instance.buttonClick.Invoke();
     }
 
     private void SetVoice()
     {
         PlayerPrefs.SetInt("Voice", PlayerPrefs.GetInt("Voice", 1) == 1 ? 0 : 1);
         CrossInitialize();
+        
+        GameManager.Instance.buttonClick.Invoke();
     }
 
     private void CrossInitialize()

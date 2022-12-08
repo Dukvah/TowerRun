@@ -9,7 +9,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private GameObject loadPanel;
 
     private GameObject _currentLevel;
-    
+    public int LevelIndex => levelIndex;
     private void Awake()
     {
         LoadData();
@@ -33,7 +33,7 @@ public class LevelManager : MonoBehaviour
             return;
         }
 
-        levelIndex += value;
+        levelIndex = value;
         levelIndex %= levels.Count;
 
         if (!loadpanel)

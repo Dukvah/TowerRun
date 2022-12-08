@@ -1,21 +1,32 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
 
 public class SoldierController : MonoBehaviour
 {
+    [Header("NEEDS")]
     [SerializeField] private List<GameObject> soldierVisuals = new();
     [SerializeField] private List<Rigidbody> bombs = new();
     [SerializeField] private List<Animator> animators = new();
+    
+    [Header("EFFECTS")]
+    [SerializeField] private List<GameObject> stepDustEffects = new(); // object pool
     [SerializeField] private GameObject deathEffect;
+
+    [Header("SOUNDS")] 
+    [SerializeField] private AudioClip jumpClip;
+    [SerializeField] private AudioClip deadClip;
     
     private Rigidbody _rb;
     private Collider _col;
     private NavMeshAgent _agent;
     private ArmyController _armyController;
     private Transform _target;
-    
+    private AudioSource _audioSource;
+    private IEnumerator _co;
+
     
     public bool Grounded { get; private set; } = true;
     public bool IsAlive { get; set; }
@@ -38,10 +49,12 @@ public class SoldierController : MonoBehaviour
         _armyController = GetComponentInParent<ArmyController>();
         _rb = GetComponent<Rigidbody>();
         _agent = GetComponentInParent<NavMeshAgent>();
+        _audioSource = GetComponent<AudioSource>();
         
         _agent.speed = PlayerPrefs.GetFloat("Speed", 2);
         _soldierIndex = PlayerPrefs.GetInt("SoldierIndex", 0);
         
+        SetStepPool();
         ChangeSoldier();
     }
 
@@ -52,6 +65,9 @@ public class SoldierController : MonoBehaviour
         _agent.SetDestination(_target.position);
         animators[_soldierIndex].SetBool("isRun",true);
 
+        _co = StepEffectCreator();
+        StartCoroutine(_co);
+        
         if (repeat)
         {
             _agent.speed *= 1.5f;
@@ -75,6 +91,8 @@ public class SoldierController : MonoBehaviour
     {
         // make the jump
         animators[_soldierIndex].SetBool("isJump",true);
+        JumpSound();
+        
         _rb.isKinematic = false;
         _rb.AddRelativeForce(Vector3.up * jumpValue, ForceMode.Impulse);
         _rb.useGravity = true;
@@ -115,6 +133,7 @@ public class SoldierController : MonoBehaviour
                 _armyController.UpdateAttack();
             }
             
+            DieSound();
             Destroy(transform.parent.gameObject, 2f);
         }
     }
@@ -131,6 +150,7 @@ public class SoldierController : MonoBehaviour
             Destroy(bombs[_soldierIndex],0.5f);
             
             DeathEffect();
+            StopCoroutine(_co);
             transform.parent.gameObject.SetActive(false);
         }
     }
@@ -148,11 +168,56 @@ public class SoldierController : MonoBehaviour
     }
 
     #region Effects
-
+    
+    private void SetStepPool()
+    {
+        foreach (var effect in stepDustEffects)
+        {
+            effect.transform.parent = null;
+        }
+    }
+    private IEnumerator StepEffectCreator()
+    {
+        for (int i = 0; i < stepDustEffects.Count; i++)
+        {
+            yield return new WaitForSeconds(Random.Range(0.3f,0.5f));
+            MakeStepEffect(i);
+            
+            if (i == stepDustEffects.Count - 1)
+            {
+                i = -1;
+            }
+        }
+    }
+    private void MakeStepEffect(int index)
+    {
+        stepDustEffects[index].transform.parent = gameObject.transform;
+        stepDustEffects[index].transform.localPosition = new Vector3(0,0.1f,0);
+        stepDustEffects[index].transform.rotation = transform.rotation;
+        stepDustEffects[index].SetActive(true);
+        stepDustEffects[index].transform.parent = null;
+    }
     private void DeathEffect()
     {
         var ps = Instantiate(deathEffect, transform.position + new Vector3(0f, 0.75f, 0f), Quaternion.identity);
         Destroy(ps, 1f);
+    }
+
+    #endregion
+
+    #region Sounds
+
+    private void JumpSound()
+    {
+        if (PlayerPrefs.GetInt("Voice",1) == 0) return;
+        _audioSource.clip = jumpClip;
+        _audioSource.Play();
+    }
+    private void DieSound()
+    {
+        if (PlayerPrefs.GetInt("Voice",1) == 0) return;
+        _audioSource.clip = deadClip;
+        _audioSource.Play();
     }
 
     #endregion

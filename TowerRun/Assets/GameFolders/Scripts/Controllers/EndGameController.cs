@@ -1,11 +1,14 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.SceneManagement;
 
 public class EndGameController : MonoBehaviour
 {
-    [SerializeField] private GameObject gun, gunTarget;
+    [SerializeField] private GameObject gun, gunTarget, explosionParticle;
+    [SerializeField] private Chest chest;
     [SerializeField] private List<Rigidbody> bullets = new();
     [SerializeField] private Transform firePos, cameraPos;
     [SerializeField] private LineRenderer lr;
@@ -14,6 +17,7 @@ public class EndGameController : MonoBehaviour
     
     private CameraFollower _cameraFollower;
     private Rigidbody _bulletPrefab;
+    private IEnumerator _co;
     
     private bool _isTriggered, _isPlayer, _isBack, _canTakeAim;
     private int _ammo;
@@ -22,6 +26,10 @@ public class EndGameController : MonoBehaviour
     {
         _cameraFollower = Camera.main.GetComponent<CameraFollower>();
         lr.SetPosition(0,gun.transform.position);
+    }
+    private void OnEnable()
+    {
+        GameManager.Instance.chestOpen.AddListener(ChestOpen);
     }
 
     private void Update()
@@ -51,7 +59,7 @@ public class EndGameController : MonoBehaviour
                 
                     gun.transform.localRotation = Quaternion.Euler(angleX, angleY, 0f);
                 
-                    var linePos = gun.transform.TransformPoint(Vector3.forward * 5);
+                    var linePos = gun.transform.TransformPoint(Vector3.forward * 2);
                     lr.SetPosition(1, linePos);
                     break;
                 }
@@ -97,18 +105,57 @@ public class EndGameController : MonoBehaviour
             _bulletPrefab = bullets[PlayerPrefs.GetInt("SoldierIndex", 0)];
             gunTarget.SetActive(true);
             _canTakeAim = true;
-            // savasa basla
+            // start war
         }
     }
-    
+    private void DecreaseAmmo()
+    {
+        _ammo--;
+        ammoText.text = $"{_ammo}";
+        ammoText.gameObject.transform.DORewind();
+        ammoText.gameObject.transform.DOPunchScale(Vector3.one, 0.5f);
+        
+        if (_ammo <= 0)
+        {
+            _canTakeAim = false;
+            _co = GameOver();
+            StartCoroutine(_co);
+            ammoText.gameObject.SetActive(false);
+            // finish war
+        }
+    }
+
+    private IEnumerator GameOver()
+    {
+        yield return new WaitForSeconds(2f);
+        GameManager.Instance.levelFailed.Invoke();
+    }
+
+    public void StopGameOver()
+    {
+        ammoText.gameObject.SetActive(false);
+        
+        if (_co != null)
+            StopCoroutine(_co);
+        
+    }
     private void Fire()
     {
         var bullet = Instantiate(_bulletPrefab, firePos.position, gun.transform.rotation);
         bullet.isKinematic = false;
         bullet.useGravity = true;
         bullet.AddForce(bullet.transform.forward * power);
+        explosionParticle.SetActive(false);
+        explosionParticle.SetActive(true);
+        DecreaseAmmo();
     }
-    
+
+    private void ChestOpen()
+    {
+        _canTakeAim = false;
+        chest.OpenChest();
+        PlayerPrefs.SetInt($"Level{SceneManager.GetActiveScene().buildIndex + 1}",1);
+    }
     private float NormalizeAngle(float input)
     {       
         while (input > 360)

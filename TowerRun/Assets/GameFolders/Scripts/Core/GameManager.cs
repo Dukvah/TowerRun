@@ -22,9 +22,12 @@ public class GameManager : Singleton<GameManager>
     // UPGRADE
     [HideInInspector] public UnityEvent addSoldier = new();
     
-
-    public bool IsPlaying { get; set; } = false;
-    
+    //AUDIO
+    [HideInInspector] public UnityEvent stopMusic = new();
+    [HideInInspector] public UnityEvent openMusic = new();
+    [HideInInspector] public UnityEvent buttonClick = new();
+    [HideInInspector] public UnityEvent menuMusic = new();
+    [HideInInspector] public UnityEvent inGameMusic = new();
     private float _playerMoney;
     public float PlayerMoney
     {
@@ -55,7 +58,7 @@ public class GameManager : Singleton<GameManager>
     }
     private void LoadData()
     {
-        PlayerMoney = PlayerPrefs.GetFloat("PlayerMoney", 1000000);
+        PlayerMoney = PlayerPrefs.GetFloat("PlayerMoney", 1000);
     }
 
     private void SaveData()
