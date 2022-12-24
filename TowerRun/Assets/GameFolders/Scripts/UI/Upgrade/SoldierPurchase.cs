@@ -26,6 +26,8 @@ public class SoldierPurchase : MonoBehaviour
 
         buyButton.onClick.AddListener(Buy);
         selectButton.onClick.AddListener(Select);
+        
+        GameManager.Instance.buyButtonsInitialize.AddListener(ButtonInitialize);
         GameManager.Instance.selectSoldier.AddListener(NewSelect);
     }
 
@@ -44,6 +46,7 @@ public class SoldierPurchase : MonoBehaviour
             PlayerPrefs.SetInt($"Minion{cardIndex}", 1);
             ItemInitialize();
             
+            GameManager.Instance.buyButtonsInitialize.Invoke();
             GameManager.Instance.buttonClick.Invoke();
         }
     }

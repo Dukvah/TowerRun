@@ -22,6 +22,9 @@ public class LevelManager : MonoBehaviour
     }
     public void LoadLevel(int value, bool loadpanel = true)
     {
+        GameManager.Instance.resetCamera.Invoke();
+        GameManager.Instance.gameReady.Invoke();
+        
         if (levels.Count == 0)
         {
             if (loadpanel)
@@ -48,7 +51,6 @@ public class LevelManager : MonoBehaviour
 
     public void ShowLoadPanel()
     {
-        GameManager.Instance.gameReady.Invoke();
         if (_currentLevel) Destroy(_currentLevel);
         if (levels[levelIndex]) _currentLevel = Instantiate(levels[levelIndex].levelPrefab) as GameObject;
     }

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +14,11 @@ public class TutorialPanel : MonoBehaviour
     private void OnEnable()
     {
         _start.onClick.AddListener(StartGameBtn);
+    }
+
+    private void OnDisable()
+    {
+        _start.onClick.RemoveListener(StartGameBtn);
     }
 
     private void StartGameBtn()

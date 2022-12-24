@@ -5,13 +5,15 @@ public class GameManager : Singleton<GameManager>
 {
     [HideInInspector] public UnityEvent gameStart = new();
     [HideInInspector] public UnityEvent gameReady = new();
-    [HideInInspector] public UnityEvent gameEnd = new();
     [HideInInspector] public UnityEvent levelSuccess = new();
     [HideInInspector] public UnityEvent levelFailed = new();
     [HideInInspector] public UnityEvent onMoneyChange = new();
     [HideInInspector] public UnityEvent onSoldierCountChange = new();
     [HideInInspector] public UnityEvent onBossFight = new();
     [HideInInspector] public UnityEvent chestOpen = new();
+    
+    // CAMERA
+    [HideInInspector] public UnityEvent resetCamera = new();
 
     // ARMY
     [HideInInspector] public UnityEvent goArmy = new();
@@ -21,8 +23,9 @@ public class GameManager : Singleton<GameManager>
     
     // UPGRADE
     [HideInInspector] public UnityEvent addSoldier = new();
+    [HideInInspector] public UnityEvent buyButtonsInitialize = new();
     
-    //AUDIO
+    // AUDIO
     [HideInInspector] public UnityEvent stopMusic = new();
     [HideInInspector] public UnityEvent openMusic = new();
     [HideInInspector] public UnityEvent buttonClick = new();

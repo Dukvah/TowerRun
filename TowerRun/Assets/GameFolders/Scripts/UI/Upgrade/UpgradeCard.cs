@@ -29,6 +29,7 @@ public class UpgradeCard : MonoBehaviour
         LoadData();
         ItemInitialize();
         GameManager.Instance.onMoneyChange.AddListener(ButtonInitialize);
+        GameManager.Instance.buyButtonsInitialize.AddListener(ButtonInitialize);
         _upgradeButton.onClick.AddListener(Buy);
     }
 
@@ -69,6 +70,7 @@ public class UpgradeCard : MonoBehaviour
         ItemInitialize();
         SaveData();
         
+        GameManager.Instance.buyButtonsInitialize.Invoke();
         GameManager.Instance.addSoldier.Invoke();
         GameManager.Instance.buttonClick.Invoke();
     }

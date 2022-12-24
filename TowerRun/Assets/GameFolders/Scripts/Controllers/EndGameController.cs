@@ -154,7 +154,7 @@ public class EndGameController : MonoBehaviour
     {
         _canTakeAim = false;
         chest.OpenChest();
-        PlayerPrefs.SetInt($"Level{SceneManager.GetActiveScene().buildIndex + 1}",1);
+        PlayerPrefs.SetInt($"Level{SceneManager.GetActiveScene().buildIndex}",1);
     }
     private float NormalizeAngle(float input)
     {       

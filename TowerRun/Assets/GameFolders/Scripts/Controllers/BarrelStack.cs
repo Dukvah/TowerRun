@@ -4,12 +4,17 @@ public class BarrelStack : MonoBehaviour
 {
     [SerializeField] private Barrel barrelPrefab;
     [SerializeField] private Transform barrelSpawnPos,barrelTarget;
-
     [SerializeField] private float barrelSpawnFrequency;
+    [SerializeField] private int barrelCount;
+
+    private void OnDisable()
+    {
+        CancelInvoke(nameof(RollBarrel));
+    }
 
     public void SendBarrels()
     {
-        InvokeRepeating(nameof(RollBarrel), 1f,barrelSpawnFrequency );
+        InvokeRepeating(nameof(RollBarrel), 0f,barrelSpawnFrequency);
     }
     public void StopBarrels()
     {
@@ -18,8 +23,10 @@ public class BarrelStack : MonoBehaviour
 
     private void RollBarrel()
     {
-        var barrel = Instantiate(barrelPrefab, barrelSpawnPos.position, Quaternion.identity, transform);
-        barrel.RollToTarget(barrelTarget.position);
-        
+        for (int i = 0; i < barrelCount; i++)
+        {
+            var barrel = Instantiate(barrelPrefab, barrelSpawnPos.position, Quaternion.identity, transform);
+            barrel.RollToTarget(barrelTarget.position);
+        }
     }
 }

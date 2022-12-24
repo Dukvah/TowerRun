@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,30 +10,24 @@ public class EnemySoldier : MonoBehaviour
 {
     [SerializeField] private EnemyArmy enemyArmy;
     [SerializeField] private NavMeshAgent agent;
+    [SerializeField] private bool isCircleArea;
 
     [Header("Effects")] 
-    [SerializeField] private List<GameObject> stepDustEffects = new(); // object pool
+    [SerializeField] private GameObject stepDustEffect;
     [SerializeField] private GameObject deathEffect;
-
-    private IEnumerator _co;
 
     private void Start()
     {
-        SetStepPool();
         InvokeRepeating(nameof(SetRandomDestination),0f,0.01f);
-        
-        _co = StepEffectCreator();
-        StartCoroutine(_co);
+        Invoke(nameof(StepEffect),Random.Range(0.1f,0.5f));
     }
-
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.collider.CompareTag("Bullet"))
         {
-            StopCoroutine(_co);
             DeathEffect();
             enemyArmy.SoldierDied();
-
+            
             CancelInvoke(nameof(SetRandomDestination));
             CancelInvoke(nameof(Check));
             
@@ -61,39 +56,25 @@ public class EnemySoldier : MonoBehaviour
     }
     private Vector3 GetRandomPoint()
     {
-        var point = Random.insideUnitCircle * 2f;
-        return new Vector3(point.x,enemyArmy.transform.position.y ,point.y);
+        if (isCircleArea)
+        {
+            var point = Random.insideUnitCircle * 2f;
+            return new Vector3(point.x,enemyArmy.transform.position.y ,point.y);
+        }
+        else
+        {
+            var point = Random.Range(-2.5f, -2.5f);
+            var point2 = Random.Range(-2.5f, -2.5f);
+            return new Vector3(transform.position.x + point ,enemyArmy.transform.position.y ,transform.position.z + point2);
+        }
+        
     }
     
     #region Effects
-
-    private void SetStepPool()
+    
+    private void StepEffect()
     {
-        foreach (var effect in stepDustEffects)
-        {
-            effect.transform.parent = null;
-        }
-    }
-    private IEnumerator StepEffectCreator()
-    {
-        for (int i = 0; i < stepDustEffects.Count; i++)
-        {
-            yield return new WaitForSeconds(Random.Range(0.3f,0.5f));
-            MakeStepEffect(i);
-            
-            if (i == stepDustEffects.Count - 1)
-            {
-                i = -1;
-            }
-        }
-    }
-    private void MakeStepEffect(int index)
-    {
-        stepDustEffects[index].transform.parent = gameObject.transform;
-        stepDustEffects[index].transform.localPosition = new Vector3(0,0.1f,0);
-        stepDustEffects[index].transform.rotation = transform.rotation;
-        stepDustEffects[index].SetActive(true);
-        stepDustEffects[index].transform.parent = null;
+        stepDustEffect.SetActive(true);
     }
     
     private void DeathEffect()

@@ -13,7 +13,11 @@ public class LevelCard : MonoBehaviour
     private void OnEnable()
     {
         indexText.text = $"{index}"; //Text assignment
-        lockObj.SetActive(!PlayerPrefs.HasKey($"Level{index + 1}")); //Lock open : close
+
+        if (index > 0)
+            lockObj.SetActive(!PlayerPrefs.HasKey($"Level{index - 1}")); //Lock open : close
+        
+        
         selectButton.onClick.AddListener(() =>
         {
             levelsPanel.LoadLevel(index); //Button assignment

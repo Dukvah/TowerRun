@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,16 +10,14 @@ public class ArmyController : MonoBehaviour
     [SerializeField] private Transform targetBoss;
     [SerializeField] private BarrelStack barrelStack;
     [SerializeField] private ArmyCameraTarget targetCamera;
-    
-    [Header("ArmyProperties")]
-    [SerializeField] private int requiredMinion;
-    
+
     [Header("Effects")]
     [SerializeField] private GameObject upgradeEffect;
     
     private CameraFollower _cameraFollower;
     public SoldierController Leader { get; private set; }
 
+    private bool _canJump = false;
     private int _soldierCount;
     private float _jumpValue;
     private void Awake()
@@ -36,6 +35,14 @@ public class ArmyController : MonoBehaviour
         GameManager.Instance.changeSoldier.AddListener(ChangeSoldier);
     }
 
+    private void OnDisable()
+    {
+        GameManager.Instance.goArmy.RemoveListener(StartAttack);
+        GameManager.Instance.goBattle.RemoveListener(GoBattle);
+        GameManager.Instance.addSoldier.RemoveListener(AddSoldier);
+        GameManager.Instance.changeSoldier.RemoveListener(ChangeSoldier);
+    }
+
     private void SoldierInitialize()
     {
         GameManager.Instance.SoldierCount = (int)PlayerPrefs.GetFloat("SoldierCount", 1);
@@ -47,8 +54,10 @@ public class ArmyController : MonoBehaviour
             soldiers[i].transform.parent.gameObject.SetActive(true);
         }
     }
-    private void CanJump()
+    private void Update()
     {
+        if (!_canJump) return;
+
         if (Input.GetMouseButtonDown(0) && Leader.Grounded)
         {
             StartCoroutine(JumpArmy());
@@ -86,7 +95,7 @@ public class ArmyController : MonoBehaviour
         if (firstTime)
         {
             _jumpValue = PlayerPrefs.GetFloat("Jump", 5);
-            InvokeRepeating(nameof(CanJump),5f,Time.deltaTime);
+            Invoke(nameof(StartJump), 5f);
             _cameraFollower.CameraSetup(targetCamera.transform);
         }
         else
@@ -122,7 +131,7 @@ public class ArmyController : MonoBehaviour
             if (soldier.IsAlive)
             {
                 soldier.JumpSoldier(_jumpValue);
-                yield return new WaitForSeconds(0.05f);
+                yield return new WaitForSeconds(0.04f);
             }
         }
     }
@@ -130,11 +139,17 @@ public class ArmyController : MonoBehaviour
     {
         targetCamera.Stop();
         barrelStack.StopBarrels();
-        CancelInvoke(nameof(CanJump));
+        _canJump = false;
+    }
+
+    private void StartJump()
+    {
+        _canJump = true;
     }
     private void NoMoreSoldier()
     {
-        CancelInvoke(nameof(CanJump));
+        targetCamera.Stop();
+        _canJump = false;
         _cameraFollower.GoLosePose();
         GameManager.Instance.levelFailed.Invoke();
     }

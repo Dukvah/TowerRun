@@ -12,7 +12,7 @@ public class SoldierController : MonoBehaviour
     [SerializeField] private List<Animator> animators = new();
     
     [Header("EFFECTS")]
-    [SerializeField] private List<GameObject> stepDustEffects = new(); // object pool
+    [SerializeField] private GameObject stepDustEffect;
     [SerializeField] private GameObject deathEffect;
 
     [Header("SOUNDS")] 
@@ -25,9 +25,8 @@ public class SoldierController : MonoBehaviour
     private ArmyController _armyController;
     private Transform _target;
     private AudioSource _audioSource;
-    private IEnumerator _co;
 
-    
+
     public bool Grounded { get; private set; } = true;
     public bool IsAlive { get; set; }
     public bool IsLeader { get; set; }
@@ -54,7 +53,6 @@ public class SoldierController : MonoBehaviour
         _agent.speed = PlayerPrefs.GetFloat("Speed", 2);
         _soldierIndex = PlayerPrefs.GetInt("SoldierIndex", 0);
         
-        SetStepPool();
         ChangeSoldier();
     }
 
@@ -65,12 +63,11 @@ public class SoldierController : MonoBehaviour
         _agent.SetDestination(_target.position);
         animators[_soldierIndex].SetBool("isRun",true);
 
-        _co = StepEffectCreator();
-        StartCoroutine(_co);
-        
+        Invoke(nameof(StartStepEffect),Random.Range(0.1f,0.5f));
+
         if (repeat)
         {
-            _agent.speed *= 1.5f;
+            _agent.speed *= 1.6f;
              InvokeRepeating(nameof(FollowLeader),0,0.02f);
         }
     }
@@ -97,6 +94,7 @@ public class SoldierController : MonoBehaviour
         _rb.AddRelativeForce(Vector3.up * jumpValue, ForceMode.Impulse);
         _rb.useGravity = true;
         
+        StopStepEffect();
         Grounded = false;
     }
     private void OnCollisionEnter(Collision collision)
@@ -110,6 +108,8 @@ public class SoldierController : MonoBehaviour
                 _rb.useGravity = false;
                 Grounded = true;
                 transform.localPosition = Vector3.zero;
+                
+                Invoke(nameof(StartStepEffect),Random.Range(0.1f,0.5f));
             }
         }
         
@@ -133,6 +133,8 @@ public class SoldierController : MonoBehaviour
                 _armyController.UpdateAttack();
             }
             
+            CancelInvoke(nameof(FollowLeader));
+            StopStepEffect();
             DieSound();
             Destroy(transform.parent.gameObject, 2f);
         }
@@ -144,13 +146,14 @@ public class SoldierController : MonoBehaviour
         {
             IsAlive = false;
 
-            bombs[_soldierIndex].isKinematic = false;
-            bombs[_soldierIndex].useGravity = true;
-            bombs[_soldierIndex].AddRelativeForce(new Vector3(0,1,1), ForceMode.Impulse); 
-            Destroy(bombs[_soldierIndex],0.5f);
+            // bombs[_soldierIndex].isKinematic = false;
+            // bombs[_soldierIndex].useGravity = true;
+            // bombs[_soldierIndex].AddRelativeForce(new Vector3(0,1,1), ForceMode.Impulse); 
+            // Destroy(bombs[_soldierIndex],0.5f);
             
+            CancelInvoke(nameof(FollowLeader));
+            StopStepEffect();
             DeathEffect();
-            StopCoroutine(_co);
             transform.parent.gameObject.SetActive(false);
         }
     }
@@ -169,33 +172,14 @@ public class SoldierController : MonoBehaviour
 
     #region Effects
     
-    private void SetStepPool()
+    private void StartStepEffect()
     {
-        foreach (var effect in stepDustEffects)
-        {
-            effect.transform.parent = null;
-        }
+        stepDustEffect.SetActive(true);
     }
-    private IEnumerator StepEffectCreator()
+
+    private void StopStepEffect()
     {
-        for (int i = 0; i < stepDustEffects.Count; i++)
-        {
-            yield return new WaitForSeconds(Random.Range(0.3f,0.5f));
-            MakeStepEffect(i);
-            
-            if (i == stepDustEffects.Count - 1)
-            {
-                i = -1;
-            }
-        }
-    }
-    private void MakeStepEffect(int index)
-    {
-        stepDustEffects[index].transform.parent = gameObject.transform;
-        stepDustEffects[index].transform.localPosition = new Vector3(0,0.1f,0);
-        stepDustEffects[index].transform.rotation = transform.rotation;
-        stepDustEffects[index].SetActive(true);
-        stepDustEffects[index].transform.parent = null;
+        stepDustEffect.SetActive(false);
     }
     private void DeathEffect()
     {

@@ -175,6 +175,7 @@ public class UIController : MonoBehaviour
     }
     private void ShowTutorial()
     {
+        tutorialPanel.SetActive(true);
         tutorialPanel.transform.GetChild(0).gameObject.SetActive(true);
     }
 

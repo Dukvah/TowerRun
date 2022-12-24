@@ -23,5 +23,6 @@ public class LevelsPanel : MonoBehaviour
         levelManager.LoadLevel(index);
         gameObject.SetActive(false);
         Time.timeScale = 1;
+        GameManager.Instance.resetCamera.Invoke();
     }
 }
